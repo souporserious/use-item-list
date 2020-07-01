@@ -7,12 +7,16 @@ const MenuItemContext = createContext(null)
 function MenuItem({ children }) {
   const ref = useRef()
   const { useItem, clearHighlightedItem } = useContext(MenuItemContext)
-  const { id, highlight, useHighlighted } = useItem({ ref, value: children })
+  const { id, highlight, select, useHighlighted } = useItem({
+    ref,
+    value: children,
+  })
   const highlighted = useHighlighted()
   return (
     <li
       ref={ref}
       id={id}
+      onClick={select}
       onMouseOver={highlight}
       onMouseOut={clearHighlightedItem}
       style={{
@@ -30,7 +34,10 @@ function MenuItem({ children }) {
 
 function MenuSubGroup({ title, children }) {
   const menuGroup = useContext(MenuGroupContext)
-  const menuItem = useItemList({ initialHighlightedIndex: null })
+  const menuItem = useItemList({
+    initialHighlightedIndex: null,
+    onSelect: (item) => console.log(item),
+  })
   menuGroup.useItem({ value: menuItem })
   return (
     <MenuItemContext.Provider value={menuItem}>
