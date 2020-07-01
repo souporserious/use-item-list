@@ -2,15 +2,54 @@
 
 A primitive React hook used to coordinate indexed collections effortlessly.
 
-## ⚠️ Disclaimer
-
-This is experimental and hacking React to obtain properly ordered indexes. In the future, hopefully React can provide a first-class API that would allow this library to swap the underlying implementation or make this library obsolete. Please use with caution.
-
 ## Why?
 
 The ergonmics of managing indexes in React is lacking. When building lower level components for accessibility purposes, managing indexes can become painful and expose internals of an API that consumers shouldn't necessarily need to know about.
 
 This library aims to solve managing indexed collections of items as easily as possible while letting users still compose, optimize, and use React like they are used to.
+
+## API
+
+```jsx
+import React, { useRef } from 'react'
+import { useItemList } from 'use-item-list'
+
+function Item({ useItem, children }) {
+  const ref = useRef()
+  const { id, index, highlight, select, selected, useHighlighted } = useItem({
+    ref,
+    value: children,
+  })
+  return (
+    <li ref={ref} id={id}>
+      {children}
+    </li>
+  )
+}
+
+function App() {
+  const {
+    controllerId,
+    listId,
+    getHighlightedIndex,
+    getHighlightedItem,
+    setHighlightedItem,
+    moveHighlightedItem,
+    clearHighlightedItem,
+    selectHighlightedItem,
+    useHighlightedItemId,
+    highlightItemByString,
+    useItem,
+  } = useItemList()
+  return (
+    <ul>
+      <Item useItem={useItem}>Item 1</Item>
+      <Item useItem={useItem}>Item 2</Item>
+      <Item useItem={useItem}>Item 3</Item>
+    </ul>
+  )
+}
+```
 
 ## Usage
 
@@ -36,7 +75,7 @@ export function Select({ children, value, onChange }) {
         role="listbox"
         aria-activedescendant={itemId}
         style={{ padding: 0 }}
-        onKeyDown={event => {
+        onKeyDown={(event) => {
           if (event.key === 'ArrowUp') {
             event.preventDefault()
             itemList.moveHighlightedItem(-1)
