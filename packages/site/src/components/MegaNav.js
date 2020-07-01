@@ -1,8 +1,7 @@
-import React, { createContext, useContext, useRef } from 'react'
+import React, { createContext, useContext, useRef, useState } from 'react'
 import { useItemList } from 'use-item-list'
 
 const MenuGroupContext = createContext(null)
-const MenuSubGroupContext = createContext(null)
 const MenuItemContext = createContext(null)
 
 function MenuItem({ children }) {
@@ -14,7 +13,6 @@ function MenuItem({ children }) {
     <li
       ref={ref}
       id={id}
-      role="option"
       onMouseOver={highlight}
       onMouseOut={clearHighlightedItem}
       style={{
@@ -31,9 +29,9 @@ function MenuItem({ children }) {
 }
 
 function MenuSubGroup({ title, children }) {
-  const menuSubGroup = useContext(MenuSubGroupContext)
+  const menuGroup = useContext(MenuGroupContext)
   const menuItem = useItemList({ initialHighlightedIndex: null })
-  menuSubGroup.useItem({ value: menuItem })
+  menuGroup.useItem({ value: menuItem })
   return (
     <MenuItemContext.Provider value={menuItem}>
       <li>
@@ -52,33 +50,23 @@ function MenuSubGroup({ title, children }) {
 }
 
 function MenuGroup({ title, children }) {
-  const ref = useRef()
-  const menuGroup = useContext(MenuGroupContext)
-  const { id, highlight, useHighlighted } = menuGroup.useItem({
-    ref,
-    value: children,
-  })
-  const menuSubGroup = useItemList()
-  const highlighted = useHighlighted()
+  const [menuOpen, setMenuOpen] = useState(false)
+  const menuGroup = useItemList()
   return (
-    <MenuSubGroupContext.Provider value={menuSubGroup}>
+    <MenuGroupContext.Provider value={menuGroup}>
       <li
-        ref={ref}
-        id={id}
         tabIndex={0}
-        role="option"
-        aria-selected={highlighted}
         onKeyDown={(event) => {
           if (event.key === 'ArrowLeft') {
             event.preventDefault()
-            const item = menuSubGroup.getHighlightedItem()
+            const item = menuGroup.getHighlightedItem()
             if (item) {
-              const highlightedIndex = item.value.highlightedIndex.current
+              const highlightedIndex = item.value.getHighlightedIndex()
               if (highlightedIndex === null) {
                 item.value.setHighlightedItem(0)
               } else {
-                menuSubGroup.moveHighlightedItem(-1)
-                const nextItem = menuSubGroup.getHighlightedItem()
+                menuGroup.moveHighlightedItem(-1)
+                const nextItem = menuGroup.getHighlightedItem()
                 if (nextItem) {
                   item.value.clearHighlightedItem()
                   nextItem.value.setHighlightedItem(0)
@@ -88,14 +76,14 @@ function MenuGroup({ title, children }) {
           }
           if (event.key === 'ArrowRight') {
             event.preventDefault()
-            const item = menuSubGroup.getHighlightedItem()
+            const item = menuGroup.getHighlightedItem()
             if (item) {
-              const highlightedIndex = item.value.highlightedIndex.current
+              const highlightedIndex = item.value.getHighlightedIndex()
               if (highlightedIndex === null) {
                 item.value.setHighlightedItem(0)
               } else {
-                menuSubGroup.moveHighlightedItem(1)
-                const nextItem = menuSubGroup.getHighlightedItem()
+                menuGroup.moveHighlightedItem(1)
+                const nextItem = menuGroup.getHighlightedItem()
                 if (nextItem) {
                   item.value.clearHighlightedItem()
                   nextItem.value.setHighlightedItem(0)
@@ -104,14 +92,14 @@ function MenuGroup({ title, children }) {
             }
           }
           if (event.key === 'ArrowUp') {
-            const item = menuSubGroup.getHighlightedItem()
+            const item = menuGroup.getHighlightedItem()
             if (item) {
-              const highlightedIndex = item.value.highlightedIndex.current
+              const highlightedIndex = item.value.getHighlightedIndex()
               if (highlightedIndex === null) {
                 item.value.setHighlightedItem(0)
               } else if (highlightedIndex === 0) {
-                menuSubGroup.moveHighlightedItem(-1)
-                const nextItem = menuSubGroup.getHighlightedItem()
+                menuGroup.moveHighlightedItem(-1)
+                const nextItem = menuGroup.getHighlightedItem()
                 if (nextItem) {
                   item.value.clearHighlightedItem()
                   nextItem.value.moveHighlightedItem(-1)
@@ -122,15 +110,15 @@ function MenuGroup({ title, children }) {
             }
           }
           if (event.key === 'ArrowDown') {
-            const item = menuSubGroup.getHighlightedItem()
+            const item = menuGroup.getHighlightedItem()
             if (item) {
               const lastIndex = item.value.items.current.length - 1
-              const highlightedIndex = item.value.highlightedIndex.current
+              const highlightedIndex = item.value.getHighlightedIndex()
               if (highlightedIndex === null) {
                 item.value.setHighlightedItem(0)
               } else if (highlightedIndex === lastIndex) {
-                menuSubGroup.moveHighlightedItem(1)
-                const nextItem = menuSubGroup.getHighlightedItem()
+                menuGroup.moveHighlightedItem(1)
+                const nextItem = menuGroup.getHighlightedItem()
                 if (nextItem) {
                   item.value.clearHighlightedItem()
                   nextItem.value.moveHighlightedItem(1)
@@ -141,16 +129,26 @@ function MenuGroup({ title, children }) {
             }
           }
         }}
-        onMouseEnter={highlight}
-        onFocus={highlight}
-        onBlur={menuGroup.clearHighlightedItem}
+        onMouseEnter={(event) => {
+          setMenuOpen(true)
+          event.target.focus()
+        }}
+        onFocus={() => setMenuOpen(true)}
+        onBlur={() => {
+          setMenuOpen(false)
+          menuGroup.setHighlightedItem(0)
+          const item = menuGroup.getHighlightedItem()
+          if (item) {
+            item.value.setHighlightedItem(0)
+          }
+        }}
         style={{
           padding: 8,
-          color: highlighted && 'coral',
+          color: menuOpen && 'coral',
         }}
       >
         <h1 style={{ margin: 0 }}>{title}</h1>
-        {highlighted && (
+        {menuOpen && (
           <ul
             style={{
               listStyle: 'none',
@@ -171,31 +169,26 @@ function MenuGroup({ title, children }) {
           </ul>
         )}
       </li>
-    </MenuSubGroupContext.Provider>
+    </MenuGroupContext.Provider>
   )
 }
 
 function Menu({ children }) {
-  const menuGroup = useItemList({
-    onHighlight: (item) => item && item.ref.current.focus(),
-  })
   return (
-    <MenuGroupContext.Provider value={menuGroup}>
-      <ul
-        style={{
-          listStyle: 'none',
-          display: 'grid',
-          gridAutoFlow: 'column',
-          gridAutoColumns: 'min-content',
-          gridGap: 16,
-          width: '100%',
-          padding: 0,
-          position: 'relative',
-        }}
-      >
-        {children}
-      </ul>
-    </MenuGroupContext.Provider>
+    <ul
+      style={{
+        listStyle: 'none',
+        display: 'grid',
+        gridAutoFlow: 'column',
+        gridAutoColumns: 'min-content',
+        gridGap: 16,
+        width: '100%',
+        padding: 0,
+        position: 'relative',
+      }}
+    >
+      {children}
+    </ul>
   )
 }
 

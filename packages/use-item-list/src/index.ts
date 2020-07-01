@@ -152,6 +152,10 @@ export function useItemList({
     }
   }
 
+  function getHighlightedIndex() {
+    return highlightedIndex.current
+  }
+
   function getHighlightedItem() {
     return items.current[highlightedIndex.current] ?? null
   }
@@ -312,8 +316,8 @@ export function useItemList({
     controllerId: controllerId.current,
     listId: listId.current,
     items,
+    getHighlightedIndex,
     getHighlightedItem,
-    highlightedIndex,
     setHighlightedItem,
     moveHighlightedItem,
     clearHighlightedItem,
