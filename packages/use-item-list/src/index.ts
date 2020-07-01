@@ -38,27 +38,31 @@ function useForceUpdate() {
   return useCallback(() => forceUpdate(Object.create(null)), [])
 }
 
+// We use a simple id here to scope controllerId and listId
+// this will eventually use useOpaqueIdentifier once it is stable
 let localId = 0
+
+type ItemListOptions = {
+  id?: number | string
+  initialHighlightedIndex?: number
+  onHighlight?: (item: any, index: number) => void
+  onSelect?: (item: any, index: number) => void
+  selected?: (itemValue: any) => boolean | boolean
+}
 
 export function useItemList({
   id = localId++,
   initialHighlightedIndex = 0,
   onHighlight,
   onSelect,
-  selected,
-}: {
-  id?: Number
-  initialHighlightedIndex?: Number
-  onHighlight?: Function
-  onSelect?: Function
-  selected?: Function | any
-}) {
-  const controllerId = useRef(`controller-${id}`)
-  const listId = useRef(`list-${id}`)
-  const getItemId = index => `${listId.current}-item-${index}`
+  selected = null,
+}: ItemListOptions = {}) {
+  const controllerId = useRef('controller-' + id)
+  const listId = useRef('list-' + id)
+  const getItemId = index => listId.current + `-item-${index}`
   const itemListEmitter = useConstant(() => mitt())
   const itemListForceUpdate = useForceUpdate()
-  const highlightedIndex = useRef(initialHighlightedIndex)
+  const highlightedIndex = useRef<number>(initialHighlightedIndex)
   const items = useRef([])
   const shouldCollectItems = useRef(true)
   const invalidatedItems = useRef(false)
@@ -93,10 +97,10 @@ export function useItemList({
 
   // Select
   useEffect(() => {
-    function handleSelect(selectIndex) {
-      const item = items.current[selectIndex]
+    function handleSelect(selectedIndex) {
+      const item = items.current[selectedIndex]
       if (onSelect && item) {
-        onSelect(item.value)
+        onSelect(item, selectedIndex)
       }
     }
     itemListEmitter.on('SELECT_ITEM', handleSelect)
@@ -118,7 +122,7 @@ export function useItemList({
     highlightedIndex.current = index
     itemListEmitter.emit('HIGHLIGHT_ITEM', index)
     if (onHighlight) {
-      onHighlight(index)
+      onHighlight(items.current[index], index)
     }
   }
 
@@ -148,13 +152,12 @@ export function useItemList({
     }
   }
 
+  function getHighlightedItem() {
+    return items.current[highlightedIndex.current] ?? null
+  }
+
   function getHighlightedItemId(index) {
-    const item = items.current[index]
-    if (item) {
-      return item.id
-    } else {
-      return null
-    }
+    return items.current[index]?.id ?? null
   }
 
   const useHighlightedItemId = useCallback(() => {
@@ -221,7 +224,7 @@ export function useItemList({
 
   const useItem = useCallback(({ ref, text, value }) => {
     const itemEmitter = useConstant(() => mitt())
-    const forceUpdate = useForceUpdate()
+    const itemForceUpdate = useForceUpdate()
     const itemIndex = storeItem({ ref, text, value })
     const itemIndexRef = useRef<Number>(itemIndex)
 
@@ -245,7 +248,7 @@ export function useItemList({
       // patch the index if new children were added
       if (itemIndexRef.current !== itemIndex) {
         itemIndexRef.current = itemIndex
-        forceUpdate()
+        itemForceUpdate()
       }
       itemEmitter.emit('UPDATE_ITEM_INDEX', itemIndex)
     }, [itemIndex])
@@ -253,7 +256,7 @@ export function useItemList({
     useEffect(() => {
       function handleHighlight(newIndex) {
         if (itemIndexRef.current === newIndex) {
-          const itemNode = ref.current
+          const itemNode = ref?.current
           if (itemNode) {
             scrollIntoView(itemNode)
           }
@@ -279,7 +282,7 @@ export function useItemList({
           }
         }
         itemListEmitter.on('HIGHLIGHT_ITEM', handleHighlight)
-        itemEmitter.emit('UPDATE_ITEM_INDEX', handleIndex)
+        itemEmitter.on('UPDATE_ITEM_INDEX', handleIndex)
         return () => {
           itemListEmitter.off('HIGHLIGHT_ITEM', handleHighlight)
           itemEmitter.off('UPDATE_ITEM_INDEX', handleIndex)
@@ -309,6 +312,7 @@ export function useItemList({
     controllerId: controllerId.current,
     listId: listId.current,
     items,
+    getHighlightedItem,
     highlightedIndex,
     setHighlightedItem,
     moveHighlightedItem,
