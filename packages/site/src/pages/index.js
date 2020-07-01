@@ -2,6 +2,7 @@ import React, { Fragment, StrictMode } from 'react'
 
 import { Demo as ComboboxDemo } from '../components/Combobox'
 import { Demo as GridDemo } from '../components/Grid'
+import { Demo as MegaNavDemo } from '../components/MegaNav'
 import { Demo as SelectDemo } from '../components/Select'
 
 const isStrict = false
@@ -20,9 +21,10 @@ function App() {
           padding: 32,
         }}
       >
-        <GridDemo />
-        <ComboboxDemo />
-        <SelectDemo />
+        {/* <GridDemo />
+        <ComboboxDemo /> */}
+        <MegaNavDemo />
+        {/* <SelectDemo /> */}
       </div>
     </Wrapper>
   )
