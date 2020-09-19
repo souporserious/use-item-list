@@ -38,16 +38,37 @@ function useForceUpdate() {
   return useCallback(() => forceUpdate(Object.create(null)), [])
 }
 
-// We use a simple id here to scope controllerId and listId
-// this will eventually use useOpaqueIdentifier once it is stable
 let localId = 0
 
-type ItemListOptions = {
+export type ItemOptions = {
+  /** Used to scroll item into view when highlighted. */
+  ref
+
+  /** Value passed back in useItemList onSelect. */
+  value: any
+
+  /** Prevents item from being highlighted/selected */
+  disabled?: boolean
+
+  /** Used for highlightItemByString function */
+  text?: string
+}
+
+export type ItemListOptions = {
+  /** Unique identifier for item list. */
   id?: number | string
+
+  /** Highlighted index on initial render. */
   initialHighlightedIndex?: number
+
+  /** Callback when an item has been highlighted. */
   onHighlight?: (item: any, index: number) => void
+
+  /** Callback when an item has been selected. */
   onSelect?: (item: any, index: number) => void
-  selected?: (itemValue: any) => boolean | boolean
+
+  /** Controls the currently selected items. */
+  selected?: (itemValue: any) => boolean | string
 }
 
 export function useItemList({
@@ -240,7 +261,7 @@ export function useItemList({
     }
   }
 
-  const useItem = useCallback(({ ref, text, value, disabled }) => {
+  const useItem = useCallback(({ ref, text, value, disabled }: ItemOptions) => {
     const itemEmitter = useConstant(() => mitt())
     const itemForceUpdate = useForceUpdate()
     const itemIndex = storeItem({ ref, text, value, disabled })
