@@ -21,10 +21,10 @@ function App() {
           padding: 32,
         }}
       >
-        {/* <GridDemo />
-        <ComboboxDemo /> */}
+        <GridDemo />
+        <ComboboxDemo />
         <MegaNavDemo />
-        {/* <SelectDemo /> */}
+        <SelectDemo />
       </div>
     </Wrapper>
   )

@@ -11,7 +11,7 @@ import data from './data'
 
 // https://www.w3.org/TR/wai-aria-practices-1.1/examples/combobox/aria1.1pattern/listbox-combo.html
 
-const ComboboxContext = createContext()
+const ComboboxContext = createContext(null)
 
 function Combobox({ children, onSelect }) {
   const itemList = useItemList({ onSelect })
@@ -43,7 +43,7 @@ function Input({ autoComplete, autoSelect, value, onChange }) {
       aria-activedescendant={itemId}
       value={value}
       onChange={onChange}
-      onKeyDown={event => {
+      onKeyDown={(event) => {
         if (event.key === 'ArrowUp') {
           event.preventDefault()
           moveHighlightedItem(-1)
@@ -108,19 +108,19 @@ function Option({ children, value }) {
 export function Demo() {
   const [inputValue, setInputValue] = useState('')
   const filteredData = data.filter(
-    item =>
+    (item) =>
       !inputValue || item.name.toLowerCase().includes(inputValue.toLowerCase())
   )
   return (
-    <Combobox onSelect={value => setInputValue(value.name)}>
+    <Combobox onSelect={(value) => setInputValue(value.name)}>
       <div>
         <Input
           value={inputValue}
-          onChange={event => setInputValue(event.target.value)}
+          onChange={(event) => setInputValue(event.target.value)}
         />
         <List>
           {filteredData.length > 0
-            ? filteredData.map(item => (
+            ? filteredData.map((item) => (
                 <Option key={item.id} value={item}>
                   {item.name}
                 </Option>

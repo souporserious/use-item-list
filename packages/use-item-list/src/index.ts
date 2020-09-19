@@ -230,7 +230,7 @@ export function useItemList({
     const itemEmitter = useConstant(() => mitt())
     const itemForceUpdate = useForceUpdate()
     const itemIndex = storeItem({ ref, text, value })
-    const itemIndexRef = useRef<Number>(itemIndex)
+    const itemIndexRef = useRef<number>(itemIndex)
 
     function highlight() {
       setHighlightedItem(itemIndexRef.current)

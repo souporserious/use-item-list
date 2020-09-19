@@ -14,9 +14,9 @@ function Grid({ children, initialHighlightedIndex }) {
   return (
     <div
       tabIndex={0}
-      onKeyDown={event => {
-        console.log(itemList.items, itemList.highlightedIndex)
-        const highlightedIndex = itemList.highlightedIndex.current
+      onKeyDown={(event) => {
+        console.log(itemList.items, itemList.getHighlightedIndex())
+        const highlightedIndex = itemList.getHighlightedIndex()
         if (event.key === 'ArrowLeft') {
           event.preventDefault()
           itemList.setHighlightedItem(highlightedIndex - 1)
@@ -105,7 +105,7 @@ export function Demo() {
           gridTemplateColumns: `repeat(7, ${CELL_SIZE}px)`,
         }}
       >
-        {WEEK_NAMES.map(day => (
+        {WEEK_NAMES.map((day) => (
           <div
             key={day}
             style={{
@@ -121,10 +121,10 @@ export function Demo() {
       <Grid
         initialHighlightedIndex={currentMonth.flat().indexOf(TODAY.getDate())}
       >
-        {currentMonth.map(week =>
+        {currentMonth.map((week) =>
           week
-            .filter(day => day !== 0)
-            .map(day => <GridCell key={day}>{day}</GridCell>)
+            .filter((day) => day !== 0)
+            .map((day) => <GridCell key={day}>{day}</GridCell>)
         )}
       </Grid>
     </div>

@@ -24,7 +24,7 @@ export function Select({ children, value, onChange }) {
         role="listbox"
         aria-activedescendant={itemId}
         style={{ padding: 0 }}
-        onKeyDown={event => {
+        onKeyDown={(event) => {
           if (event.key === 'ArrowUp') {
             event.preventDefault()
             itemList.moveHighlightedItem(-1)
@@ -87,9 +87,9 @@ export function Demo() {
     <div>
       <button onClick={() => setFruits(assortedFruits)}>Add more fruits</button>
       <Select
-        value={value => selectedFruits.includes(value)}
-        onChange={value => {
-          setSelectedFruits(currentSelectedFruits => {
+        value={(value) => selectedFruits.includes(value)}
+        onChange={(value) => {
+          setSelectedFruits((currentSelectedFruits) => {
             const nextSelectedFruits = [...currentSelectedFruits]
             const index = currentSelectedFruits.indexOf(value)
             if (index > -1) {
@@ -101,7 +101,7 @@ export function Demo() {
           })
         }}
       >
-        {fruits.map(fruit => (
+        {fruits.map((fruit) => (
           <Option key={fruit} value={fruit}>
             {fruit}
           </Option>

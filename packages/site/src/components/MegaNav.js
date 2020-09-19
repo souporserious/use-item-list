@@ -140,6 +140,10 @@ function MenuGroup({ title, children }) {
           setMenuOpen(true)
           event.target.focus()
         }}
+        onMouseLeave={(event) => {
+          setMenuOpen(false)
+          event.target.blur()
+        }}
         onFocus={() => setMenuOpen(true)}
         onBlur={() => {
           setMenuOpen(false)
