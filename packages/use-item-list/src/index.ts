@@ -66,7 +66,7 @@ export function useItemList({
   const items = useRef([])
   const shouldCollectItems = useRef(true)
   const invalidatedItems = useRef(false)
-  const storeItem = useCallback(({ ref, text, value }) => {
+  const storeItem = useCallback(({ ref, text, value, disabled }) => {
     let itemIndex = items.current.findIndex(item => item.value === value)
 
     // First, we check if the incoming ref is new and
@@ -82,7 +82,13 @@ export function useItemList({
       invalidatedItems.current = true
     } else if (itemIndex === -1) {
       itemIndex = items.current.length
-      items.current.push({ id: getItemId(itemIndex), ref, text, value })
+      items.current.push({
+        id: getItemId(itemIndex),
+        ref,
+        text,
+        value,
+        disabled,
+      })
     }
 
     return itemIndex
@@ -132,12 +138,20 @@ export function useItemList({
     if (index === null) {
       index = amount >= 0 ? 0 : itemCount - 1
     } else {
-      index += amount
-      if (index < 0 || index >= itemCount) {
-        index = contain
-          ? modulo(highlightedIndex.current + amount, itemCount)
-          : null
+      const getNextIndex = index => {
+        let nextIndex = index + amount
+        if (nextIndex < 0 || nextIndex >= itemCount) {
+          nextIndex = contain
+            ? modulo(highlightedIndex.current + amount, itemCount)
+            : null
+        }
+        const item = items.current[nextIndex]
+        if (item.disabled) {
+          nextIndex = getNextIndex(nextIndex)
+        }
+        return nextIndex
       }
+      index = getNextIndex(index)
     }
     setHighlightedItem(index)
   }
@@ -226,18 +240,22 @@ export function useItemList({
     }
   }
 
-  const useItem = useCallback(({ ref, text, value }) => {
+  const useItem = useCallback(({ ref, text, value, disabled }) => {
     const itemEmitter = useConstant(() => mitt())
     const itemForceUpdate = useForceUpdate()
-    const itemIndex = storeItem({ ref, text, value })
+    const itemIndex = storeItem({ ref, text, value, disabled })
     const itemIndexRef = useRef<number>(itemIndex)
 
     function highlight() {
-      setHighlightedItem(itemIndexRef.current)
+      if (disabled === false) {
+        setHighlightedItem(itemIndexRef.current)
+      }
     }
 
     function select() {
-      itemListEmitter.emit('SELECT_ITEM', itemIndexRef.current)
+      if (disabled === false) {
+        itemListEmitter.emit('SELECT_ITEM', itemIndexRef.current)
+      }
     }
 
     useIsomorphicEffect(() => {
