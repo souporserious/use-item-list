@@ -8,7 +8,7 @@ import React, {
 } from 'react'
 import { useItemList } from 'use-item-list'
 
-const SelectContext = createContext()
+const SelectContext = createContext(null)
 
 export function Select({ children, value, onChange }) {
   const itemList = useItemList({
@@ -46,13 +46,14 @@ export function Select({ children, value, onChange }) {
   )
 }
 
-export function Option({ children, text, value }) {
+export function Option({ children, text, value, disabled }) {
   const { useItem, clearHighlightedItem } = useContext(SelectContext)
   const ref = useRef()
   const { id, index, highlight, select, selected, useHighlighted } = useItem({
     ref,
     text,
     value,
+    disabled,
   })
   const highlighted = useHighlighted()
   return (
@@ -61,6 +62,7 @@ export function Option({ children, text, value }) {
       id={id}
       role="option"
       aria-selected={selected}
+      aria-disabled={disabled}
       onMouseOver={highlight}
       onMouseOut={clearHighlightedItem}
       onMouseDown={select}
@@ -69,6 +71,7 @@ export function Option({ children, text, value }) {
         padding: 8,
         backgroundColor: highlighted ? 'yellow' : 'white',
         fontWeight: selected ? 600 : 400,
+        opacity: disabled ? 0.35 : 1,
       }}
     >
       {index} {children} {selected && '✅'}
@@ -102,7 +105,11 @@ export function Demo() {
         }}
       >
         {fruits.map((fruit) => (
-          <Option key={fruit} value={fruit}>
+          <Option
+            key={fruit}
+            value={fruit}
+            disabled={['Pear', 'Kiwi'].includes(fruit)}
+          >
             {fruit}
           </Option>
         ))}

@@ -17,6 +17,7 @@ function App() {
           gridAutoFlow: 'column',
           gridAutoColumns: '1fr',
           gridGap: 32,
+          alignItems: 'start',
           justifyItems: 'center',
           padding: 32,
         }}

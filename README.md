@@ -17,8 +17,10 @@ import { useItemList } from 'use-item-list'
 function Item({ useItem, children }) {
   const ref = useRef()
   const { id, index, highlight, select, selected, useHighlighted } = useItem({
-    ref,
-    value: children,
+    ref, // required ref used to scroll item into view when highlighted
+    value: children, // value passed back in useItemList onSelect
+    disabled: false, // prevents item from being highlighted/selected
+    text: null, // used for highlightItemByString function
   })
   return (
     <li ref={ref} id={id}>
@@ -27,7 +29,7 @@ function Item({ useItem, children }) {
   )
 }
 
-function App() {
+function List({ value, onChange }) {
   const {
     controllerId,
     listId,
@@ -40,7 +42,10 @@ function App() {
     useHighlightedItemId,
     highlightItemByString,
     useItem,
-  } = useItemList()
+  } = useItemList({
+    selected: value, // the current selected value
+    onSelect: onChange, // callback when item has been selected
+  })
   return (
     <ul>
       <Item useItem={useItem}>Item 1</Item>
