@@ -261,95 +261,98 @@ export function useItemList({
     }
   }
 
-  const useItem = useCallback(({ ref, text, value, disabled }: ItemOptions) => {
-    const itemEmitter = useConstant(() => mitt())
-    const itemForceUpdate = useForceUpdate()
-    const itemIndex = storeItem({ ref, text, value, disabled })
-    const itemIndexRef = useRef<number>(itemIndex)
+  const useItem = useCallback(
+    ({ ref, text, value, disabled = false }: ItemOptions) => {
+      const itemEmitter = useConstant(() => mitt())
+      const itemForceUpdate = useForceUpdate()
+      const itemIndex = storeItem({ ref, text, value, disabled })
+      const itemIndexRef = useRef<number>(itemIndex)
 
-    function highlight() {
-      if (disabled === false) {
-        setHighlightedItem(itemIndexRef.current)
-      }
-    }
-
-    function select() {
-      if (disabled === false) {
-        itemListEmitter.emit('SELECT_ITEM', itemIndexRef.current)
-      }
-    }
-
-    useIsomorphicEffect(() => {
-      // if collection was invalidated, we need to trigger an update in the parent
-      if (invalidatedItems.current) {
-        itemListForceUpdate()
-        invalidatedItems.current = false
-      }
-    })
-
-    useIsomorphicEffect(() => {
-      // patch the index if new children were added
-      if (itemIndexRef.current !== itemIndex) {
-        itemIndexRef.current = itemIndex
-        itemForceUpdate()
-      }
-      itemEmitter.emit('UPDATE_ITEM_INDEX', itemIndex)
-    }, [itemIndex])
-
-    useEffect(() => {
-      function handleHighlight(newIndex) {
-        if (itemIndexRef.current === newIndex) {
-          const itemNode = ref?.current
-          if (itemNode) {
-            scrollIntoView(itemNode)
-          }
+      function highlight() {
+        if (disabled === false) {
+          setHighlightedItem(itemIndexRef.current)
         }
       }
-      itemListEmitter.on('HIGHLIGHT_ITEM', handleHighlight)
-      return () => {
-        itemListEmitter.off('HIGHLIGHT_ITEM', handleHighlight)
-      }
-    }, [])
 
-    const useHighlighted = useCallback(() => {
-      const [highlighted, setHighlighted] = useState<Boolean | null>(null)
+      function select() {
+        if (disabled === false) {
+          itemListEmitter.emit('SELECT_ITEM', itemIndexRef.current)
+        }
+      }
+
       useIsomorphicEffect(() => {
-        function handleHighlight(newIndex) {
-          setHighlighted(itemIndexRef.current === newIndex)
+        // if collection was invalidated, we need to trigger an update in the parent
+        if (invalidatedItems.current) {
+          itemListForceUpdate()
+          invalidatedItems.current = false
         }
-        function handleIndex(itemIndex) {
-          // update the highlight state in case of a mismatch
-          const nextHighlighted = highlightedIndex.current === itemIndex
-          if (highlighted !== nextHighlighted) {
-            setHighlighted(nextHighlighted)
+      })
+
+      useIsomorphicEffect(() => {
+        // patch the index if new children were added
+        if (itemIndexRef.current !== itemIndex) {
+          itemIndexRef.current = itemIndex
+          itemForceUpdate()
+        }
+        itemEmitter.emit('UPDATE_ITEM_INDEX', itemIndex)
+      }, [itemIndex])
+
+      useEffect(() => {
+        function handleHighlight(newIndex) {
+          if (itemIndexRef.current === newIndex) {
+            const itemNode = ref?.current
+            if (itemNode) {
+              scrollIntoView(itemNode)
+            }
           }
         }
         itemListEmitter.on('HIGHLIGHT_ITEM', handleHighlight)
-        itemEmitter.on('UPDATE_ITEM_INDEX', handleIndex)
         return () => {
           itemListEmitter.off('HIGHLIGHT_ITEM', handleHighlight)
-          itemEmitter.off('UPDATE_ITEM_INDEX', handleIndex)
         }
       }, [])
-      useIsomorphicEffect(() => {
-        const nextHighlighted =
-          itemIndexRef.current === highlightedIndex.current
-        if (highlighted !== nextHighlighted) {
-          setHighlighted(nextHighlighted)
-        }
-      })
-      return highlighted
-    }, [])
 
-    return {
-      id: getItemId(itemIndex),
-      index: itemIndexRef.current,
-      highlight,
-      select,
-      selected: isItemSelected(value),
-      useHighlighted,
-    }
-  }, [])
+      const useHighlighted = useCallback(() => {
+        const [highlighted, setHighlighted] = useState<Boolean | null>(null)
+        useIsomorphicEffect(() => {
+          function handleHighlight(newIndex) {
+            setHighlighted(itemIndexRef.current === newIndex)
+          }
+          function handleIndex(itemIndex) {
+            // update the highlight state in case of a mismatch
+            const nextHighlighted = highlightedIndex.current === itemIndex
+            if (highlighted !== nextHighlighted) {
+              setHighlighted(nextHighlighted)
+            }
+          }
+          itemListEmitter.on('HIGHLIGHT_ITEM', handleHighlight)
+          itemEmitter.on('UPDATE_ITEM_INDEX', handleIndex)
+          return () => {
+            itemListEmitter.off('HIGHLIGHT_ITEM', handleHighlight)
+            itemEmitter.off('UPDATE_ITEM_INDEX', handleIndex)
+          }
+        }, [])
+        useIsomorphicEffect(() => {
+          const nextHighlighted =
+            itemIndexRef.current === highlightedIndex.current
+          if (highlighted !== nextHighlighted) {
+            setHighlighted(nextHighlighted)
+          }
+        })
+        return highlighted
+      }, [])
+
+      return {
+        id: getItemId(itemIndex),
+        index: itemIndexRef.current,
+        highlight,
+        select,
+        selected: isItemSelected(value),
+        useHighlighted,
+      }
+    },
+    []
+  )
 
   return {
     controllerId: controllerId.current,
