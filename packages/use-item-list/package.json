@@ -1,6 +1,6 @@
 {
   "name": "use-item-list",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "Travis Arnold",
   "description": "Manage indexed collections in React using hooks.",
   "license": "MIT",
