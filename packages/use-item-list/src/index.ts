@@ -85,6 +85,7 @@ export function useItemList({
   const itemListForceUpdate = useForceUpdate()
   const highlightedIndex = useRef<number>(initialHighlightedIndex)
   const items = useRef([])
+  const previousItems = useRef([])
   const shouldCollectItems = useRef(true)
   const invalidatedItems = useRef(false)
   const storeItem = useCallback(({ ref, text, value, disabled }) => {
@@ -115,17 +116,22 @@ export function useItemList({
     return itemIndex
   }, [])
 
-  // clear items on every render before collecting children
+  // clear items on every render before collecting children.
+  // we keep a copy of the previous items in case SELECT_ITEM
+  // is emitted while items are collected.
+  // this way we always have a valid item list.
+  previousItems.current = items.current;
   items.current = []
   shouldCollectItems.current = true
   useIsomorphicEffect(() => {
     shouldCollectItems.current = false
+    previousItems.current = []
   })
 
   // Select
   useEffect(() => {
     function handleSelect(selectedIndex) {
-      const item = items.current[selectedIndex]
+      const item = items.current[selectedIndex] || previousItems.current[selectedIndex]
       if (onSelect && item) {
         onSelect(item, selectedIndex)
       }
