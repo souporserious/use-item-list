@@ -85,26 +85,26 @@ export function useItemList({
   const itemListForceUpdate = useForceUpdate()
   const highlightedIndex = useRef<number>(initialHighlightedIndex)
   const items = useRef([])
-  const previousItems = useRef([])
+  const nextItems = useRef([])
   const shouldCollectItems = useRef(true)
   const invalidatedItems = useRef(false)
   const storeItem = useCallback(({ ref, text, value, disabled }) => {
-    let itemIndex = items.current.findIndex(item => item.value === value)
+    let itemIndex = nextItems.current.findIndex(item => item.value === value)
 
     // First, we check if the incoming ref is new and
     // determine if the parent has set shouldCollectRefs or not.
     // If it hasn't, we need to refetch refs by their tree order
     if (
       itemIndex === -1 &&
-      items.current.length > 0 &&
+      nextItems.current.length > 0 &&
       shouldCollectItems.current === false
     ) {
       // stop collecting refs and start over in forced parent render
       // since the collection has been invalidated
       invalidatedItems.current = true
     } else if (itemIndex === -1) {
-      itemIndex = items.current.length
-      items.current.push({
+      itemIndex = nextItems.current.length
+      nextItems.current.push({
         id: getItemId(itemIndex),
         ref,
         text,
@@ -116,22 +116,21 @@ export function useItemList({
     return itemIndex
   }, [])
 
-  // clear items on every render before collecting children.
-  // we keep a copy of the previous items in case SELECT_ITEM
-  // is emitted while items are collected.
-  // this way we always have a valid item list.
-  previousItems.current = items.current;
-  items.current = []
+  // Clear nextItems on every render before collecting items
+  nextItems.current = []
   shouldCollectItems.current = true
+
   useIsomorphicEffect(() => {
+    // This effect runs after all children were stored, so we
+    // can now apply the collected items to the items array
+    items.current = nextItems.current
     shouldCollectItems.current = false
-    previousItems.current = []
   })
 
   // Select
   useEffect(() => {
     function handleSelect(selectedIndex) {
-      const item = items.current[selectedIndex] || previousItems.current[selectedIndex]
+      const item = items.current[selectedIndex]
       if (onSelect && item) {
         onSelect(item, selectedIndex)
       }
