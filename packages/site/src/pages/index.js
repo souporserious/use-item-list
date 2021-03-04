@@ -1,16 +1,23 @@
-import React, { Fragment, StrictMode } from 'react'
+import React, { Fragment, StrictMode, useState } from 'react'
 
 import { Demo as ComboboxDemo } from '../components/Combobox'
 import { Demo as GridDemo } from '../components/Grid'
 import { Demo as MegaNavDemo } from '../components/MegaNav'
 import { Demo as SelectDemo } from '../components/Select'
 
-const isStrict = false
-const Wrapper = isStrict ? StrictMode : Fragment
-
 function App() {
+  const [strict, setStrict] = useState(false)
+  const Wrapper = strict ? StrictMode : Fragment
   return (
     <Wrapper>
+      <label>
+        <input
+          type="checkbox"
+          checked={strict}
+          onChange={() => setStrict(!strict)}
+        />
+        <span>Strict Mode</span>
+      </label>
       <div
         style={{
           display: 'grid',

@@ -112,7 +112,7 @@ export function Demo() {
       !inputValue || item.name.toLowerCase().includes(inputValue.toLowerCase())
   )
   return (
-    <Combobox onSelect={(value) => setInputValue(value.name)}>
+    <Combobox onSelect={(item) => setInputValue(item.value.name)}>
       <div>
         <Input
           value={inputValue}

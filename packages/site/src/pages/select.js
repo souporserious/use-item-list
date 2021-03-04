@@ -1,7 +1,6 @@
 import React, {
-  Suspense,
-  lazy,
   createContext,
+  useCallback,
   useContext,
   useRef,
   useState,
@@ -46,10 +45,10 @@ export function Select({ children, value, onChange }) {
   )
 }
 
-export function Option({ children, text, value, disabled }) {
+export function Option({ children, text = null, value, disabled = false }) {
   const { useItem, clearHighlightedItem } = useContext(SelectContext)
   const ref = useRef()
-  const { id, index, highlight, select, selected, useHighlighted } = useItem({
+  const { id, highlight, select, selected, useHighlighted } = useItem({
     ref,
     text,
     value,
@@ -68,27 +67,34 @@ export function Option({ children, text, value, disabled }) {
       onMouseDown={select}
       style={{
         display: 'flex',
+        justifyContent: 'center',
         padding: 8,
         backgroundColor: highlighted ? 'yellow' : 'white',
         fontWeight: selected ? 600 : 400,
         opacity: disabled ? 0.35 : 1,
+        cursor: 'pointer',
       }}
     >
-      {index} {children} {selected && '✅'}
+      {children} {selected && '✅'}
     </li>
   )
 }
 
-const LazyOption = lazy(() => import('../components/LazyOption'))
-const assortedFruits = ['Apple', 'Orange', 'Pear', 'Kiwi', 'Banana', 'Mango']
-const staticObjectValue = { foo: 'bar' }
+const range = (size) => {
+  const numbers = []
+  for (let i = 0; i < size; i++) {
+    numbers.push(i)
+  }
+  return numbers
+}
 
-export function Demo() {
-  const [fruits, setFruits] = useState(assortedFruits.slice(1, 4))
+const items = range(10)
+
+export default function App() {
   const [selectedFruits, setSelectedFruits] = useState([])
+  console.log(selectedFruits)
   return (
-    <div>
-      <button onClick={() => setFruits(assortedFruits)}>Add more fruits</button>
+    <div className="App">
       <Select
         value={(value) => selectedFruits.includes(value)}
         onChange={(value) => {
@@ -104,28 +110,11 @@ export function Demo() {
           })
         }}
       >
-        {fruits.map((fruit) => (
-          <Option
-            key={fruit}
-            value={fruit}
-            disabled={['Pear', 'Kiwi'].includes(fruit)}
-          >
-            {fruit}
+        {items.map((item) => (
+          <Option key={item} value={item}>
+            {item}
           </Option>
         ))}
-        <Option value={staticObjectValue} text="Foo/Bar">
-          Foo/Bar
-        </Option>
-        {typeof window === 'undefined' ? (
-          'Fetching Suspense option...'
-        ) : (
-          <Suspense fallback="Fetching Suspense option...">
-            <LazyOption />
-          </Suspense>
-        )}
-        <Option value="a">A</Option>
-        <Option value="b">B</Option>
-        <Option value="c">C</Option>
       </Select>
     </div>
   )
