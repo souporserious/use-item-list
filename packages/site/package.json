@@ -10,12 +10,12 @@
   },
   "dependencies": {
     "calendarize": "^1.1.1",
-    "faker": "^4.1.0",
-    "gatsby": "^2.24.63",
-    "lodash": "^4.17.15",
-    "moment": "^2.24.0",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
+    "faker": "^5.4.0",
+    "gatsby": "^3.0.1",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.1",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
     "use-item-list": "*"
   }
 }

@@ -34,15 +34,15 @@
     "react": ">=16.8"
   },
   "devDependencies": {
-    "@types/jest": "^25.1.3",
-    "@types/react": "^16.9.23",
-    "@types/react-dom": "^16.9.5",
-    "husky": "^4.2.3",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
-    "tsdx": "^0.12.3",
-    "tslib": "^1.11.1",
-    "typescript": "^3.8.3"
+    "@types/jest": "^26.0.20",
+    "@types/react": "^17.0.2",
+    "@types/react-dom": "^17.0.1",
+    "husky": "^5.1.3",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "tsdx": "^0.14.1",
+    "tslib": "^2.1.0",
+    "typescript": "^4.2.2"
   },
   "husky": {
     "hooks": {
@@ -56,7 +56,7 @@
     "trailingComma": "es5"
   },
   "dependencies": {
-    "mitt": "^1.2.0",
-    "use-constant": "^1.0.0"
+    "mitt": "^2.1.0",
+    "use-constant": "^1.1.0"
   }
 }

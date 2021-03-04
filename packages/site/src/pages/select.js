@@ -1,15 +1,9 @@
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useRef,
-  useState,
-} from 'react'
+import React, { createContext, useContext, useRef, useState } from 'react'
 import { useItemList } from 'use-item-list'
 
 const SelectContext = createContext(null)
 
-export function Select({ children, value, onChange }) {
+function Select({ children, value, onChange }) {
   const itemList = useItemList({
     selected: value,
     onSelect: (item) => onChange(item.value),
@@ -45,7 +39,7 @@ export function Select({ children, value, onChange }) {
   )
 }
 
-export function Option({ children, text = null, value, disabled = false }) {
+function Option({ children, text = null, value, disabled = false }) {
   const { useItem, clearHighlightedItem } = useContext(SelectContext)
   const ref = useRef()
   const { id, highlight, select, selected, useHighlighted } = useItem({
@@ -92,7 +86,6 @@ const items = range(10)
 
 export default function App() {
   const [selectedFruits, setSelectedFruits] = useState([])
-  console.log(selectedFruits)
   return (
     <div className="App">
       <Select
