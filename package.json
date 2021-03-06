@@ -1,6 +1,7 @@
 {
   "private": true,
   "scripts": {
+    "three": "yarn workspace three",
     "site": "yarn workspace site",
     "use-item-list": "yarn workspace use-item-list"
   },
