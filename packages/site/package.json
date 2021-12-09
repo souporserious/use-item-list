@@ -10,7 +10,7 @@
   "dependencies": {
     "calendarize": "^1.1.1",
     "faker": "^5.5.3",
-    "next": "12.0.2",
+    "next": "12.0.5",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
     "react": "^17.0.2",
